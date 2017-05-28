@@ -1,4 +1,6 @@
 # magento2-account-approval
+###### What is this extension about?
+This extension restricts customers to login on the website just after registration. Customers can login to website only after website admin approves customers account.
 
 ###### Install Extension
 ```
