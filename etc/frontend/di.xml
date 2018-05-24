@@ -1,7 +1,9 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
-    <preference for="Magento\Customer\Controller\Account\CreatePost"
-                type="Amitshree\Customer\Controller\Customer\Account\CreatePost" />
     <type name="Magento\Customer\Controller\Account\LoginPost">
         <plugin name="AmitshreeCustomer::around" type="Amitshree\Customer\Plugin\Customer\Controller\Account\LoginPost" />
+    </type>
+
+    <type name="Magento\Customer\Model\Account\Redirect">
+        <plugin name="AmitshreeCustomer:redirect" type="Amitshree\Customer\Plugin\Redirect" disabled="false" sortOrder="1"/>
     </type>
 </config>
