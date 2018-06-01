@@ -4,12 +4,15 @@ namespace Amitshree\Customer\Plugin\Customer\Controller\Account;
 use Magento\Customer\Model\Session;
 use Magento\Framework\Data\Form\FormKey\Validator;
 use Magento\Customer\Api\CustomerRepositoryInterface;
-use  Magento\Framework\Message\ManagerInterface;
+use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\App\Response\Http as ResponseHttp;
-
+use Magento\Framework\App\Config\ScopeConfigInterface as ScopeConfig;
 
 class LoginPost
 {
+
+    const MODULE_ENABLED = 'customerlogin/general/enable';
+
     /**
      * @var Session
      */
@@ -34,9 +37,12 @@ class LoginPost
         Validator $formKeyValidator,
         CustomerRepositoryInterface $customerRepositoryInterface,
         ManagerInterface $messageManager,
-        ResponseHttp $responseHttp
+        ResponseHttp $responseHttp,
+        ScopeConfig $scopeConfig
     )
     {
+        $this->scopeConfig = $scopeConfig;
+
         $this->session = $customerSession;
         $this->formKeyValidator = $formKeyValidator;
         $this->customerRepositoryInterface = $customerRepositoryInterface;
@@ -46,12 +52,22 @@ class LoginPost
 
     public function aroundExecute(\Magento\Customer\Controller\Account\LoginPost $loginPost, \Closure $proceed)
     {
+        $storeScope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
+        $enable = $this->scopeConfig->getValue (self::MODULE_ENABLED, $storeScope);
+
+        if(!$enable){
+            return $proceed();
+        }
 
         if ($loginPost->getRequest()->isPost()) {
             $login = $loginPost->getRequest()->getPost('login');
             if (!empty($login['username']) && !empty($login['password'])) {
 
                 $customer = $this->getCustomer($login['username']);
+                if(!$customer){
+                    return $proceed();
+                }
+
                 try {
                     if (!empty($customer->getCustomAttributes())) {
                         if ($this->isAccountNotApproved($customer)) {
@@ -92,8 +108,13 @@ class LoginPost
      */
     public function getCustomer($email)
     {
-        $this->currentCustomer = $this->customerRepositoryInterface->get($email);
-        return $this->currentCustomer;
+        try{
+            $this->currentCustomer = $this->customerRepositoryInterface->get($email);
+            return $this->currentCustomer;
+        }catch (\Exception $e){
+            return false;
+        }
+
     }
     /**
      * Check if customer is a vendor and account is approved
@@ -101,6 +122,14 @@ class LoginPost
      */
     public function isAccountNotApproved($customer)
     {
+
+
+        $customAttribute = $customer->getCustomAttribute('approve_account');
+
+        if(empty($customAttribute)){
+            return true;
+        }
+
         $isApprovedAccount = $customer->getCustomAttribute('approve_account')->getValue();
         if($isApprovedAccount)
         {
