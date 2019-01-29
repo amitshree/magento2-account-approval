@@ -8,3 +8,6 @@ composer config repositories.magento2-account-approval git git@github.com:amitsh
 composer require magento2-customer-account-approval:dev-master
 php bin/magento setup:upgrade
 ```
+
+###### Enable extension
+Enable extension by navigation to ```Stores => Configuration => Amitshree customer => Customer Login```
