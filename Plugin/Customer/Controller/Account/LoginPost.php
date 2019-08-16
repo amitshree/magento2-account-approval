@@ -5,8 +5,8 @@ use Magento\Customer\Model\Session;
 use Magento\Framework\Data\Form\FormKey\Validator;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Framework\Message\ManagerInterface;
-use Magento\Framework\App\Response\Http as ResponseHttp;
 use Magento\Framework\App\Config\ScopeConfigInterface as ScopeConfig;
+use Magento\Framework\App\Action\Context;
 
 class LoginPost
 {
@@ -27,9 +27,6 @@ class LoginPost
     /** @var ManagerInterface **/
     protected $messageManager;
 
-    /** @var Http **/
-    protected $responseHttp;
-
     protected $currentCustomer;
 
     public function __construct(
@@ -37,17 +34,16 @@ class LoginPost
         Validator $formKeyValidator,
         CustomerRepositoryInterface $customerRepositoryInterface,
         ManagerInterface $messageManager,
-        ResponseHttp $responseHttp,
-        ScopeConfig $scopeConfig
+        ScopeConfig $scopeConfig,
+        Context $context
     )
     {
         $this->scopeConfig = $scopeConfig;
-
         $this->session = $customerSession;
         $this->formKeyValidator = $formKeyValidator;
         $this->customerRepositoryInterface = $customerRepositoryInterface;
         $this->messageManager = $messageManager;
-        $this->responseHttp = $responseHttp;
+        $this->resultRedirectFactory = $context->getResultRedirectFactory();
     }
 
     public function aroundExecute(\Magento\Customer\Controller\Account\LoginPost $loginPost, \Closure $proceed)
@@ -72,7 +68,9 @@ class LoginPost
                     if (!empty($customer->getCustomAttributes())) {
                         if ($this->isAccountNotApproved($customer)) {
                             $this->messageManager->addErrorMessage(__('Your account is not approved. Kindly contact website admin for assitance.'));
-                            $this->responseHttp->setRedirect('customer/account/login');
+                        
+                            return $this->resultRedirectFactory->create()
+                                    ->setPath('customer/account/login');
                             //@todo:: redirect to last visited url
                         } else {
                             return $proceed();
@@ -87,7 +85,8 @@ class LoginPost
                     $message = "Invalid User credentials.";
                     $this->messageManager->addError($message);
                     $this->session->setUsername($login['username']);
-                    $this->responseHttp->setRedirect('customer/account/login');
+                    return $this->resultRedirectFactory->create()
+                                    ->setPath('customer/account/login');
                 }
 
             }
@@ -123,13 +122,10 @@ class LoginPost
     public function isAccountNotApproved($customer)
     {
 
-
         $customAttribute = $customer->getCustomAttribute('approve_account');
-
         if(empty($customAttribute)){
             return true;
         }
-
         $isApprovedAccount = $customer->getCustomAttribute('approve_account')->getValue();
         if($isApprovedAccount)
         {
