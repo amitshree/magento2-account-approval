@@ -11,3 +11,8 @@ php bin/magento setup:upgrade
 
 ###### Enable extension
 Enable extension by navigation to ```Stores => Configuration => Amitshree customer => Customer Login```
+
+###### Un-Install/Remove Extension
+```
+php bin/magento module:uninstall Amitshree_Customer
+```
