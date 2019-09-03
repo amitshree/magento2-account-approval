@@ -30,7 +30,8 @@ public function execute(EventObserver $observer)
     $customer = $observer->getCustomerDataObject();
     $customerOld = $observer->getOrigCustomerDataObject();
     $approveAccount = (int) $customer->getCustomAttribute('approve_account')->getValue();
-    $approveAccountOld = (int) $customerOld->getCustomAttribute('approve_account')->getValue();
+    $oldAppAcc = $customerOld->getCustomAttribute('approve_account');
+    $approveAccountOld = isset($oldAppAcc) ? (int) $oldAppAcc->getValue(): 0;
 
     if ($approveAccount !== $approveAccountOld && $approveAccount === 1) {
     	$firstName = $customer->getFirstName();
