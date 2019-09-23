@@ -1,3 +1,5 @@
 <!--@subject {{trans "Account Approval email"}} @-->
 
-Hello {{var data.first_name|raw}}, your account has been approved for {{store url=""}}
+{{template config_path="design/email/header_template"}}
+<p>Hello {{var data.first_name|raw}}, your account has been approved for {{store url=""}}</p>
+{{template config_path="design/email/footer_template"}}
