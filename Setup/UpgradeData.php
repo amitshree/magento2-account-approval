@@ -21,18 +21,27 @@ class UpgradeData implements UpgradeDataInterface
     /** @var CustomerSetupFactory */
     protected $customerSetupFactory;
 
+    /** @var Customer */
+    protected $_customer;
+
     /** @var SetFactory  */
     protected $attributeSetFactory;
 
     /**
+     * UpgradeData constructor.
      * @param EavSetupFactory $eavSetupFactory
+     * @param CustomerSetupFactory $customerSetupFactory
+     * @param Customer $customer
+     * @param SetFactory $attributeSetFactory
      */
     public function __construct(
         EavSetupFactory $eavSetupFactory,
         CustomerSetupFactory $customerSetupFactory,
+        Customer $customer,
         SetFactory $attributeSetFactory
     ) {
         $this->eavSetupFactory = $eavSetupFactory;
+        $this->_customer = $customer;
         $this->customerSetupFactory = $customerSetupFactory;
         $this->attributeSetFactory = $attributeSetFactory;
     }
@@ -53,6 +62,14 @@ class UpgradeData implements UpgradeDataInterface
                     'is_filterable_in_grid' => true,
                 ]
             );
+        }
+        if (version_compare($context->getVersion(), '2.0.2', '<')) {
+            $customers = $this->_customer->getCollection()->addAttributeToSelect("*")->load();
+            foreach ($customers as $key => $customer){
+
+                $customer->setData('approve_account','1');
+                $customer->save();
+            }
         }
 
     }
