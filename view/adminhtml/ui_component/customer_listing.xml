@@ -1,6 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <listing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
-    <listingToolbar name="listing_top"/>
+    <listingToolbar name="listing_top">
+        <massaction name="listing_massaction" component="Magento_Ui/js/grid/tree-massactions">
+            <action name="approve_customers">
+                <settings>
+                    <confirm>
+                        <message translate="true">Are you sure you want to Approve the selected customers?</message>
+                        <title translate="true">Approve items</title>
+                    </confirm>
+                    <url path="approvecust/index/MassApprove"/>
+                    <type>delete</type>
+                    <label translate="true">Approve Customers</label>
+                </settings>
+            </action>
+        </massaction>
+    </listingToolbar>
     <columns name="customer_columns">
         <column name="approve_account" component="Magento_Ui/js/grid/columns/select">
             <settings>
