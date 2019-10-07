@@ -20,13 +20,6 @@ use Magento\Framework\Controller\ResultFactory;
 class MassApprove extends AbstractMassAction implements HttpPostActionInterface
 {
     /**
-     * Authorization level of a basic admin session
-     *
-     * @see _isAllowed()
-     */
-    const ADMIN_RESOURCE = 'Magento_Customer::delete';
-
-    /**
      * @var CustomerRepositoryInterface
      */
     protected $customerRepository;
@@ -52,18 +45,16 @@ class MassApprove extends AbstractMassAction implements HttpPostActionInterface
      */
     protected function massAction(AbstractCollection $collection)
     {
-        $customersDeleted = 0;
+        $customersApproved = 0;
         foreach ($collection->getAllIds() as $customerId) {
-            //$this->customerRepository->deleteById($customerId);
             $customer = $this->customerRepository->getById($customerId);
             $customer->setCustomAttribute('approve_account',1);
             $this->customerRepository->save($customer);
-
-            $customersDeleted++;
+            $customersApproved++;
         }
 
-        if ($customersDeleted) {
-            $this->messageManager->addSuccess(__('A total of %1 record(s) were Approved.', $customersDeleted));
+        if ($customersApproved) {
+            $this->messageManager->addSuccess(__('A total of %1 record(s) were Approved.', $customersApproved));
         }
         /** @var \Magento\Backend\Model\View\Result\Redirect $resultRedirect */
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
