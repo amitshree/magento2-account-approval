@@ -9,7 +9,7 @@
                         <title translate="true">Approve items</title>
                     </confirm>
                     <url path="approvecust/index/MassApprove"/>
-                    <type>delete</type>
+                    <type>approve</type>
                     <label translate="true">Approve Customers</label>
                 </settings>
             </action>
