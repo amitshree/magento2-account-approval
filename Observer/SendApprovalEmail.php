@@ -29,6 +29,10 @@ public function execute(EventObserver $observer)
 
     $customer = $observer->getCustomerDataObject();
     $customerOld = $observer->getOrigCustomerDataObject();
+        
+    // do not send mail if customer is new created from backoffice
+    if(!isset($customerOld)) return $this;
+    
     $approveAccount = (int) $customer->getCustomAttribute('approve_account')->getValue();
     $oldAppAcc = $customerOld->getCustomAttribute('approve_account');
     $approveAccountOld = isset($oldAppAcc) ? (int) $oldAppAcc->getValue(): 0;
