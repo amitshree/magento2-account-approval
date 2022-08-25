@@ -4,7 +4,7 @@ This extension restricts customers to login on the website just after registrati
 
 ###### Install Extension
 ```
-composer config repositories.magento2-account-approval git git@github.com:amitshree/magento2-account-approval.git
+composer config repositories.magento2-account-approval git https://github.com/amitshree/magento2-account-approval.git
 composer require amitshree/magento2-customer-account-approval:dev-master
 php bin/magento setup:upgrade
 ```
