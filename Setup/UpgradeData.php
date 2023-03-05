@@ -65,12 +65,11 @@ class UpgradeData implements UpgradeDataInterface
         }
         if (version_compare($context->getVersion(), '2.0.2', '<')) {
             $customers = $this->_customer->getCollection()->addAttributeToSelect("*")->load();
-            foreach ($customers as $key => $customer){
+            foreach ($customers as $key => $customer) {
 
-                $customer->setData('approve_account','1');
+                $customer->setData('approve_account', '1');
                 $customer->save();
             }
         }
-
     }
 }

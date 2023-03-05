@@ -13,11 +13,11 @@ class CustomerYesNoOptions extends \Magento\Eav\Model\Entity\Attribute\Source\Ab
      * Option values
      */
 
-    const VALUE_NO = 0;
-    const VALUE_YES = 1;
+    protected const VALUE_NO = 0;
+    protected const VALUE_YES = 1;
 
     /**
-     * @var optionFactory
+     * @var $optionFactory
      */
     protected $optionFactory;
 
@@ -35,14 +35,13 @@ class CustomerYesNoOptions extends \Magento\Eav\Model\Entity\Attribute\Source\Ab
     }
 
     /**
-     *  retrive option array
+     *  Retrive option array
      * @return array
      */
     public function getOptionArray()
     {
         $_options = [];
-        foreach($this->getAllOptions() as $option)
-        {
+        foreach ($this->getAllOptions() as $option) {
             $_options[$option['value']] = $option['label'];
             return $_options;
         }

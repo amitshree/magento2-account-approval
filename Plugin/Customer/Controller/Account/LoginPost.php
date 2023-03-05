@@ -1,6 +1,7 @@
 <?php
 
 namespace Amitshree\Customer\Plugin\Customer\Controller\Account;
+
 use Magento\Customer\Model\Session;
 use Magento\Framework\Data\Form\FormKey\Validator;
 use Magento\Customer\Api\CustomerRepositoryInterface;
@@ -8,10 +9,13 @@ use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface as ScopeConfig;
 use Magento\Framework\App\Action\Context;
 
+/**
+ * Login post controller plugin
+ */
 class LoginPost
 {
 
-    const MODULE_ENABLED = 'customerlogin/general/enable';
+    protected const MODULE_ENABLED = 'customerlogin/general/enable';
 
     /**
      * @var Session
@@ -27,8 +31,19 @@ class LoginPost
     /** @var ManagerInterface **/
     protected $messageManager;
 
+    /**
+     * @var \Magento\Customer\Api\Data\CustomerInterface
+     */
     protected $currentCustomer;
 
+    /**
+     * @param Session $customerSession
+     * @param Validator $formKeyValidator
+     * @param CustomerRepositoryInterface $customerRepositoryInterface
+     * @param ManagerInterface $messageManager
+     * @param ScopeConfig $scopeConfig
+     * @param Context $context
+     */
     public function __construct(
         Session $customerSession,
         Validator $formKeyValidator,
@@ -36,8 +51,7 @@ class LoginPost
         ManagerInterface $messageManager,
         ScopeConfig $scopeConfig,
         Context $context
-    )
-    {
+    ) {
         $this->scopeConfig = $scopeConfig;
         $this->session = $customerSession;
         $this->formKeyValidator = $formKeyValidator;
@@ -46,12 +60,18 @@ class LoginPost
         $this->resultRedirectFactory = $context->getResultRedirectFactory();
     }
 
+    /**
+     * Redirect to login
+     * @param \Magento\Customer\Controller\Account\LoginPost $loginPost
+     * @param \Closure $proceed
+     * @return \Magento\Framework\Controller\Result\Redirect|mixed
+     */
     public function aroundExecute(\Magento\Customer\Controller\Account\LoginPost $loginPost, \Closure $proceed)
     {
         $storeScope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
-        $enable = $this->scopeConfig->getValue (self::MODULE_ENABLED, $storeScope);
+        $enable = $this->scopeConfig->getValue(self::MODULE_ENABLED, $storeScope);
 
-        if(!$enable){
+        if (!$enable) {
             return $proceed();
         }
 
@@ -60,15 +80,16 @@ class LoginPost
             if (!empty($login['username']) && !empty($login['password'])) {
 
                 $customer = $this->getCustomer($login['username']);
-                if(!$customer){
+                if (!$customer) {
                     return $proceed();
                 }
 
                 try {
                     if (!empty($customer->getCustomAttributes())) {
                         if ($this->isAccountNotApproved($customer)) {
-                            $this->messageManager->addErrorMessage(__('Your account is not approved. Kindly contact website admin for assitance.'));
-                        
+                            $this->messageManager->addErrorMessage(__('Your account is not approved.
+                            Kindly contact website admin for assitance.'));
+
                             return $this->resultRedirectFactory->create()
                                     ->setPath('customer/account/login');
                             //@todo:: redirect to last visited url
@@ -79,9 +100,7 @@ class LoginPost
                         // if no custom attributes found
                         return $proceed();
                     }
-                }
-                catch (\Exception $e)
-                {
+                } catch (\Exception $e) {
                     $message = "Invalid User credentials.";
                     $this->messageManager->addError($message);
                     $this->session->setUsername($login['username']);
@@ -89,46 +108,44 @@ class LoginPost
                                     ->setPath('customer/account/login');
                 }
 
-            }
-            else {
+            } else {
                 // call the original execute function
                 return $proceed();
             }
-        }
-        else {
+        } else {
             // call the original execute function
             return $proceed();
         }
     }
 
     /**
-     * @param $email
+     * Get customer by email
+     * @param string $email
      * @return \Magento\Customer\Api\Data\CustomerInterface
      */
     public function getCustomer($email)
     {
-        try{
+        try {
             $this->currentCustomer = $this->customerRepositoryInterface->get($email);
             return $this->currentCustomer;
-        }catch (\Exception $e){
+        } catch (\Exception $e) {
             return false;
         }
-
     }
+
     /**
      * Check if customer is a vendor and account is approved
+     * @param $customer
      * @return bool
      */
     public function isAccountNotApproved($customer)
     {
-
         $customAttribute = $customer->getCustomAttribute('approve_account');
-        if(empty($customAttribute)){
+        if (empty($customAttribute)) {
             return true;
         }
         $isApprovedAccount = $customer->getCustomAttribute('approve_account')->getValue();
-        if($isApprovedAccount)
-        {
+        if ($isApprovedAccount) {
             return false;
         }
         return true;

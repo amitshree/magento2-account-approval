@@ -12,20 +12,18 @@ use Magento\Framework\Setup\InstallDataInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 
-
 class InstallData implements InstallDataInterface
 {
 
     /**
      * attribute to identify customer account is approved or not
      */
-    const APPROVE_ACCOUNT = 'approve_account';
+    protected const APPROVE_ACCOUNT = 'approve_account';
 
     /**
      * @var EavSetupFactory
      */
     private $eavSetupFactory;
-
 
     /**
      * @var CustomerSetupFactory
@@ -38,6 +36,7 @@ class InstallData implements InstallDataInterface
     private $attributeSetFactory;
 
     /**
+     * @param EavSetupFactory $eavSetupFactory
      * @param CustomerSetupFactory $customerSetupFactory
      * @param AttributeSetFactory $attributeSetFactory
      */
@@ -51,14 +50,14 @@ class InstallData implements InstallDataInterface
         $this->attributeSetFactory = $attributeSetFactory;
     }
 
-
     /**
-     * {@inheritdoc}
+     * Install data
+     * @param ModuleDataSetupInterface $setup
+     * @param ModuleContextInterface $context
+     * @return void
      */
-    public function install(ModuleDataSetupInterface $setup, ModuleContextInterface $context)
-    {
+    public function install(ModuleDataSetupInterface $setup, ModuleContextInterface $context) {
         $setup->startSetup();
-
         /**
          *  Customer attributes
          */
@@ -72,11 +71,12 @@ class InstallData implements InstallDataInterface
         $attributeSet = $this->attributeSetFactory->create();
         $attributeGroupId = $attributeSet->getDefaultGroupId($attributeSetId);
 
-
         /**
          * Create customer attribute account_approve
          */
-        $customerSetup->addAttribute(Customer::ENTITY, self::APPROVE_ACCOUNT,
+        $customerSetup->addAttribute(
+            Customer::ENTITY,
+            self::APPROVE_ACCOUNT,
             [
                 'type' => 'int',
                 'label' => 'Approve Account',
@@ -89,7 +89,8 @@ class InstallData implements InstallDataInterface
                 'sort_order' => 215,
                 'position' => 215,
                 'system' => false,
-            ]);
+            ]
+        );
         $approve_account = $customerSetup->getEavConfig()->getAttribute(Customer::ENTITY, self::APPROVE_ACCOUNT)
             ->addData([
                 'attribute_set_id' => $attributeSetId,

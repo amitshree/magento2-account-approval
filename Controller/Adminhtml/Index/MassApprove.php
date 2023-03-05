@@ -48,7 +48,7 @@ class MassApprove extends AbstractMassAction implements HttpPostActionInterface
         $customersApproved = 0;
         foreach ($collection->getAllIds() as $customerId) {
             $customer = $this->customerRepository->getById($customerId);
-            $customer->setCustomAttribute('approve_account',1);
+            $customer->setCustomAttribute('approve_account', 1);
             $this->customerRepository->save($customer);
             $customersApproved++;
         }

@@ -9,39 +9,73 @@ use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\Registry;
 use Magento\Framework\UrlInterface;
 
+/**
+ * Redirect to login
+ */
 class Redirect
 {
-    const MODULE_ENABLED = 'customerlogin/general/enable';
+    protected const MODULE_ENABLED = 'customerlogin/general/enable';
 
+    /**
+     * @var Registry
+     */
     protected $coreRegistry;
+
+    /**
+     * @var UrlInterface
+     */
     protected $url;
+
+    /**
+     * @var ResultFactory
+     */
     protected $resultFactory;
+
+    /**
+     * @var ManagerInterface
+     */
     protected $messageManager;
+
+    /**
+     * @var Session
+     */
     protected $session;
 
-    public function __construct(Registry $registry,
-                                UrlInterface $url,
-                                ManagerInterface $messageManager,
-                                ScopeConfigInterface $scopeConfig,
-                                Session $customerSession,
-                                ResultFactory $resultFactory
-    )
-    {
+    /**
+     * @param Registry $registry
+     * @param UrlInterface $url
+     * @param ManagerInterface $messageManager
+     * @param ScopeConfigInterface $scopeConfig
+     * @param Session $customerSession
+     * @param ResultFactory $resultFactory
+     */
+    public function __construct(
+        Registry $registry,
+        UrlInterface $url,
+        ManagerInterface $messageManager,
+        ScopeConfigInterface $scopeConfig,
+        Session $customerSession,
+        ResultFactory $resultFactory
+    ) {
         $this->session = $customerSession;
         $this->coreRegistry = $registry;
         $this->url = $url;
         $this->resultFactory = $resultFactory;
         $this->messageManager = $messageManager;
         $this->_scopeConfig = $scopeConfig;
-
-
     }
 
-    public function aroundGetRedirect ($subject, \Closure $proceed)
+    /**
+     * Block auto login
+     * @param \Magento\Customer\Model\Account\Redirect $subject
+     * @param \Closure $proceed
+     * @return \Magento\Framework\Controller\Result\Redirect|mixed
+     */
+    public function aroundGetRedirect($subject, \Closure $proceed)
     {
 
         $storeScope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
-        $enable = $this->_scopeConfig->getValue (self::MODULE_ENABLED, $storeScope);
+        $enable = $this->_scopeConfig->getValue(self::MODULE_ENABLED, $storeScope);
 
         if ($enable && $this->coreRegistry->registry('is_new_account')) {
 
@@ -49,7 +83,8 @@ class Redirect
             $this->messageManager->getMessages(true);
 
             // Adding a custom message
-            $this->messageManager->addErrorMessage(__('Your account is not approved. Kindly contact website admin for assitance.'));
+            $this->messageManager->addErrorMessage(__('Your account is not approved.
+            Kindly contact website admin for assitance.'));
 
             // Destroy the customer session in order to redirect him to the login page
             $this->session->destroy();
