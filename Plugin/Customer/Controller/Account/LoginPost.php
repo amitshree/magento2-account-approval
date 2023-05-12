@@ -18,6 +18,11 @@ class LoginPost
     protected const MODULE_ENABLED = 'customerlogin/general/enable';
 
     /**
+     * @var ScopeConfigInterface
+     */
+    private $scopeConfig;
+
+    /**
      * @var Session
      */
     protected $session;
@@ -37,6 +42,11 @@ class LoginPost
     protected $currentCustomer;
 
     /**
+     * @var \Magento\Framework\Controller\Result\RedirectFactory
+     */
+    private $resultRedirectFactory;
+
+    /**
      * @param Session $customerSession
      * @param Validator $formKeyValidator
      * @param CustomerRepositoryInterface $customerRepositoryInterface
@@ -52,11 +62,11 @@ class LoginPost
         ScopeConfig $scopeConfig,
         Context $context
     ) {
-        $this->scopeConfig = $scopeConfig;
         $this->session = $customerSession;
         $this->formKeyValidator = $formKeyValidator;
         $this->customerRepositoryInterface = $customerRepositoryInterface;
         $this->messageManager = $messageManager;
+        $this->scopeConfig = $scopeConfig;
         $this->resultRedirectFactory = $context->getResultRedirectFactory();
     }
 
