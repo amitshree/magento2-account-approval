@@ -27,11 +27,6 @@ class Redirect
     protected $url;
 
     /**
-     * @var ResultFactory
-     */
-    protected $resultFactory;
-
-    /**
      * @var ManagerInterface
      */
     protected $messageManager;
@@ -40,6 +35,11 @@ class Redirect
      * @var Session
      */
     protected $session;
+
+    /**
+     * @var ResultFactory
+     */
+    protected $resultFactory;
 
     /**
      * @param Registry $registry
@@ -57,12 +57,12 @@ class Redirect
         Session $customerSession,
         ResultFactory $resultFactory
     ) {
-        $this->session = $customerSession;
         $this->coreRegistry = $registry;
         $this->url = $url;
-        $this->resultFactory = $resultFactory;
         $this->messageManager = $messageManager;
-        $this->_scopeConfig = $scopeConfig;
+        $this->scopeConfig = $scopeConfig;
+        $this->session = $customerSession;
+        $this->resultFactory = $resultFactory;
     }
 
     /**
@@ -75,7 +75,7 @@ class Redirect
     {
 
         $storeScope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
-        $enable = $this->_scopeConfig->getValue(self::MODULE_ENABLED, $storeScope);
+        $enable = $this->scopeConfig->getValue(self::MODULE_ENABLED, $storeScope);
 
         if ($enable && $this->coreRegistry->registry('is_new_account')) {
 
