@@ -14,6 +14,18 @@ use Psr\Log\LoggerInterface;
  */
 class SendApprovalEmail implements ObserverInterface
 {
+    /**
+     * @var TransportBuilder
+     */
+    private $transportBuilder;
+    /**
+     * @var ScopeConfigInterface
+     */
+    private $scopeConfig;
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
 
     /**
      * @param TransportBuilder $transportBuilder
